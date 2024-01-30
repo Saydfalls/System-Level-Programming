@@ -1,0 +1,50 @@
+part 1a
+Has a duplicate case error, case 65 and case 'A' are the same. 'A' is 65
+in int, hence why it is considered a duplicate case error.
+
+part 1b
+1.strlen('string')
+	calculates the length of a string.
+		Example:
+			char a[20] = "String";
+			printf("The length of a is: %d", strlen(a));
+		Output:
+			The length of a is: 6
+2. strncmp('string1','string2',n)
+	compares the bytes of one string to the other and returns the difference
+		Example:
+			char a[20] = "String";
+			char b[20] = "STRING";
+			int difference = strncmp(b,a,6);
+			printf("difference is: %d", difference);
+		Output:
+			difference is: -32
+
+3. strncpy('destination','source', n)
+	copies a string from a source to it's destination.
+		Example:
+			char a[20] = "String";
+			char b[20] = "STRING";
+			strncpy(b,a,6);
+			printf("String a is: %s\nString b is: %s", a,b);
+		Output:
+			String a is: String
+			String b is: String
+
+4. strncat('destination', 'source', n)
+	appends the string pointed to by the source to the end of the destination
+	up to 'n' characters long.
+		Example:
+			char a[20] = "String";
+			char b[20] = "STRING";
+			strncat(b,a,6);
+			printf("String a is: %s\nString b is: %s", a,b);
+		Output:
+			String a is: String
+			String b is: STRINGString
+
+5. strrev('source')
+	reverses a string
+		Example:
+			char a[20] = "String";
+			printf("String a is: %s\n", strrev(a));

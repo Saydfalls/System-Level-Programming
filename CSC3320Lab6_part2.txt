@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+
+	int i, arrNums[50], arrFreq[100], userInput, arrEvenOdd[] = {0,0};
+
+	for(i = 0; i < 50; i++) arrFreq[i] = 0;
+	for(i = 0; i < 50; i++) {
+		arrNums[i] = (random() % 100) + 1;
+		arrFreq[arrNums[i]]++;
+
+		if(arrNums[i] % 2 == 1){
+			arrEvenOdd[1]++;
+		}else{
+			arrEvenOdd[0]++;
+		}
+	}
+
+	scanf("%d", &userInput);
+	printf("\n");
+
+	if(userInput < 0 || user Input > 100) {
+		printf("This number is out of range.");
+	}else if(userInput == 0) {
+		printf("This number never appears.");
+	}else {
+		printf("The number %d occurs %d times.", userInput, arrFreq[userInput]);
+	}
+
+	float perc;
+
+	for(i = 0; i < 100; i++) {
+		if(i % 2 == 1) {
+			perc = ((float)arrFreq[i]/50)*100;
+			printf("The Odd number %d occurs %d times. This means it occurs %.1f%% of the time.\n", i, arrFreq[i], perc);
+		}
+	}	
+
+	perc = ((float)arrEvenOdds[0]/50)*100;
+	printf("\nTotal Evens: %d\nPercent of Evens: %.1f\%\n", arrEvenOdd[0],perc);
+
+	perc = ((float)arrEvenOdds[1]/50)*100;
+	printf("\nTotal Odds: %d \nPercent of Odds: %.1f\%\n", arrEvenOdd[1], perc);
+
+	return 0;
+}

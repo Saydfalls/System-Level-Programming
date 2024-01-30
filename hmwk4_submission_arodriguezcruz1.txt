@@ -1,0 +1,108 @@
+Adrian Rodriguez-Cruz
+CSC 3320: Hmwk #4
+Account: arodriguezcruz1
+Due date: 11/6/2022
+
+Script started on Sat 05 Nov 2022 09:34:27 PM EDT
+]0;arodriguezcruz1@gsuad.gsu.edu@snowball:~/homeworks/hw4[?1034h[arodriguezcruz1@gsuad.gsu.edu@snowball hw4]$ cat hw4_tester.c
+#include <stdio.h>
+#include <math.h>
+#include "new_game.h"
+
+double getDistance (int px, int py, int ex, int ey) 
+{
+	double A1, A2;
+	A1 = ex - px;
+	A2 = ey - py;
+	
+	A1 *= A1;
+	A2 *= A2;
+
+	return sqrt(A1+A2);
+}
+
+int main (int argc, char *argv[])
+{	
+
+	int player_x = 6;
+	int player_y = 20;
+	
+	int lowestEnemy, i;
+	double lowest, current;
+	if (DEBUG == true) {
+		printf("Please enter the X and Y coordinates for the player: ");
+		scanf("%d %d", &player_x, &player_y);
+		printf("\n");
+		current = getDistance(player_x, player_y, Enemy_X[0], Enemy_Y[0]);
+		lowest = current;
+
+		printf("Enemy %d is at %d,%d and the distance to the player is %.2f.\n", i, Enemy_X[0], Enemy_Y[0], current);
+
+		for(i = 1; i < MAX_ENEMY; i++){
+			current = getDistance(player_x, player_y, Enemy_X[i], Enemy_Y[i]);
+			printf("Enemy %d is at %d,%d and the distance to the player is %.2f.\n", i, Enemy_X[i], Enemy_Y[i], current);
+			if(current < lowest) {
+				lowest = current;
+				lowestEnemy = i;
+			}
+		}
+
+		printf("The player is at %d,%d and the closest enemy is enemy %d at %d,%d.\n", player_x, player_y, lowestEnemy, Enemy_X[lowestEnemy], Enemy_Y[lowestEnemy]);
+
+		return 0;
+	}
+	
+	current = getDistance(player_x, player_y, Enemy_X[0], Enemy_Y[0]);
+	lowest = current;
+	for(i = 0; i < MAX_ENEMY; i++){
+		current = getDistance(player_x, player_y, Enemy_X[i], Enemy_Y[i]);
+		if(current < lowest) {
+			lowest = current;
+			lowestEnemy = i;
+		}
+	}
+
+	printf("The player is at %d,%d and the closest enemy is enemy %d at %d,%d.\n", player_x, player_y, lowestEnemy, Enemy_X[lowestEnemy], Enemy_Y[lowestEnemy]);
+
+	return 0;
+}
+]0;arodriguezcruz1@gsuad.gsu.edu@snowball:~/homeworks/hw4[arodriguezcruz1@gsuad.gsu.edu@snowball hw4]$ cat new_game.h
+#include <stdbool.h>
+
+#define MAX_ENEMY 6
+
+bool DEBUG = true;
+
+int Enemy_X[] = {15, 20, 1, 32, 99, 7};
+int Enemy_Y[] = {12, 13, -2, 19, 25, 23};
+
+
+]0;arodriguezcruz1@gsuad.gsu.edu@snowball:~/homeworks/hw4[arodriguezcruz1@gsuad.gsu.edu@snowball hw4]$ ./hw4_tester
+Please enter the X and Y coordinates for the player: 35 92
+
+Enemy 0 is at 15,12 and the distance to the player is 82.46.
+Enemy 1 is at 20,13 and the distance to the player is 80.41.
+Enemy 2 is at 1,-2 and the distance to the player is 99.96.
+Enemy 3 is at 32,19 and the distance to the player is 73.06.
+Enemy 4 is at 99,25 and the distance to the player is 92.66.
+Enemy 5 is at 7,23 and the distance to the player is 74.46.
+The player is at 35,92 and the closest enemy is enemy 3 at 32,19.
+]0;arodriguezcruz1@gsuad.gsu.edu@snowball:~/homeworks/hw4[arodriguezcruz1@gsuad.gsu.edu@snowball hw4]$ vi new_game.h
+]0;arodriguezcruz1@gsuad.gsu.edu@snowball:~/homeworks/hw4[arodriguezcruz1@gsuad.gsu.edu@snowball hw4]$ gcc hw4_tester.c -o hw4_tester -lm
+]0;arodriguezcruz1@gsuad.gsu.edu@snowball:~/homeworks/hw4[arodriguezcruz1@gsuad.gsu.edu@snowball hw4]$ cat new_game.h
+#include <stdbool.h>
+
+#define MAX_ENEMY 6
+
+bool DEBUG = false;
+
+int Enemy_X[] = {15, 20, 1, 32, 99, 7};
+int Enemy_Y[] = {12, 13, -2, 19, 25, 23};
+
+
+]0;arodriguezcruz1@gsuad.gsu.edu@snowball:~/homeworks/hw4[arodriguezcruz1@gsuad.gsu.edu@snowball hw4]$ ./hw4_tester
+The player is at 6,20 and the closest enemy is enemy 5 at 7,23.
+]0;arodriguezcruz1@gsuad.gsu.edu@snowball:~/homeworks/hw4[arodriguezcruz1@gsuad.gsu.edu@snowball hw4]$ exit
+exit
+
+Script done on Sat 05 Nov 2022 09:36:24 PM EDT

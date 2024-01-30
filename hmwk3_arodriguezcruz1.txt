@@ -1,0 +1,652 @@
+Adrian Rodriguez-Cruz
+CSC3320
+Due Date: 10/16/22
+
+
+# C book, Chapter 16, Page 377- Structures, Unions, and Enumerations
+- 'Three new types: Structures, Unions, and Enumerations.'
+    - **Structure**: 'a collection of values (members), possibly of different types.'
+    - **Union**: 'similar to a structure, but members share the same storage, as a result a union can store one member at a time, but not all members simultaneously.'
+    - **Enumeration**: 'an integer type whose values are named by the programmer.'
+
+## 16.1 Structure (Page 377)
+- "Elements of a structure, called members, are selected by specifying its name, rather than it's position."
+
+#### Declaring Structure Variables (Page 378)
+- Warehouse example:
+
+*struct* {
+int number;
+char name [*Name_LEN*+1];
+int on_hand;
+} part1, part2;
+
+- "Each structure variable has 3 members":
+    - "*number* (part number)"
+    - "*name* (name of the part)"
+    - "*on_hand* (quantity on hand)"
+- *part1* and *part2* are both variables of that structure.
+- What does it look like in memory?
+    - let's assume 4 things:
+        1. "*part1* is located at address 2000"
+        2. "integers occupy four bytes"
+        3."*NAME_LEN* has the value 25"
+        4. "There are no gaps between the members."
+    - With this established part1's address spans from 2000-2033.
+    - 'Each structure represents a new scope', this means that each declaration of a structure does not interfere with any other declaration of a structure, this includes variable's within each structure.
+
+#### Initializing Structure Variables (Page 379)
+- 'Like an array, a structure variable may be initialized at the time it's declared'. For example:
+
+*struct* {
+int number;
+char name[*NAME_LEN*+1];
+int on_hand;
+} part1 = {528, "Disk drive", 10},
+part2 = {914, "Printer cable", 5};
+
+- Ensure that values are initialized in the order in which they are declared.
+- They should also be constant values, you ***cannot***  use variables.
+    - It should be noted that this rule is relaxed in C99.
+- 'An initializer can have fewer members than the structure it's initializing; as with arrays, any "leftover" members are given 0 as their initial value.' bytes in a leftover char array will also be 0.
+
+#### Designated Initializers (Page 380)
+- **Designator**: is a combination of a period and the name of a member. In the previous example:
+*{528, "Disk drive", 10}*
+- With designators would look like:
+*{.number = 528, .name = "Disk drive", .on_hand = 10}*
+- The advantages of designated initializing include:
+    1. 'easier to read and check for correctness'
+    2. 'values in the initializer don't have to be placed in the same order that the members are listed in the structure.'
+        - For example it could be written as:
+*{.on_hand = 10, .name = "Disk drive", .number =528}*
+
+#### Operations on Structures (Page 381)
+- How to access a member (example):
+    - '*printf*("Part number: %d\n", part1.number);'
+- 'The members of a structure are lvalues, so they can appear on the left side of an assignment or as the operand in an increment or decrement expression', another example follows:
+- *part1.number = 258;*
+- The period is a C operator. 'It has the same precedence as the postfix ++ and -- operators, so it takes precedence over nearly all other operaters.'
+    - For example:
+    - *scanf*("%d", &part1.on_hand);
+    - '.'takes precedence over & so it computes the address of part1.on_hand.
+- 'The other major structure operation is assignment:'
+    - *part2 = part1;*
+- all values of all members from part1 will be assigned to all members of part2.
+- although arrays can't be copied with the = operator, they can with structures.
+    - this can be exploited like so:
+*struct* { int a [10]; } a1, a2;
+*a1 = a2;*
+    - this is only legal because a1 and a2 are structures.
+- The = operator can be used only with structures of ***compatible*** types. Which means they must have been declared at the same time. 'Structures declared using the same "structure tag" or the same type name are also compatible.'
+- 'Other than assignment, C provides no operations on entire structures.'
+    - This means you can't use boolean operators to test whether two structures are equal or not (== !=).
+
+## 16.2 Structure Types (Page 382)
+- In order to avoid issues it is best to define a name that will represent the type of a structure. There are 2 ways to define the name of a structure:
+    1. "structure tag": a name used to identify a particular kind af structure.
+    2. typedef: define's a type name.
+
+#### Declaring a Structure Tag (Page 383)
+- ***Structure tag*** example:
+
+*struct* part {
+int number;
+char name["*NAME_LEN* + 1"];
+int on_hand;
+};
+- 'Notice the semicolon that follows the right brace - it must be present to terminate the declaration.'
+- Once the structure tag is defined it can be used to declare variables, however you cannot drop 'struct' because it defines the type.
+    - For example:
+
+*struct part part1, part2;*
+    - the following would be incorrect:
+
+*part part1, part2;*
+- You can also write out your struct with the structure tag included and later initiate the variables, like the following:
+
+*struct part part1* = {528, "Disk drive", 10};
+
+#### Defining a Structure Type (Page 384)
+- We can also use typedef:
+
+*typedef struct* {
+int number;
+char name[*NAME_LEN*+1];
+int on_hand;
+}Part;
+- 'Note that the name of the type, *Part*, must come at the end, not after the word *struct*.'
+    - The difference here is that, unlike structure tags, typedef can be used 'in the same way as the built-in type. For example':
+*Part part1, part2;*
+- Because *Part* is defined by *typedef* you can't write *struct Part*.
+- When it comes to linked list it is mandatory to use a structure tag instead of *typedef*.
+
+#### Structures as Arguments and Return Values (Page 384)
+- Functions can have structures as arguments and return values.
+
+void *print_part*(*struct part* p)
+{
+*printf*("Part number: %d\nPart name: %s\nQuantity on hand: %d\n", p.number, p.name, p.on_hand);
+}
+- print_part is called as:
+
+*print_part*(*part*);
+- struct as a function with return values looks like this:
+
+*struct part build_part*(int number, const char *name, int on_hand)
+{
+struct part p;
+
+p.number = number;
+strcpy(p.name, name);
+p.on\_hand = on_hand;
+return p;
+}
+
+- Note: *build_part*'s parameters has names that match the members of the part structure. This is legal because 'the structure has its own name space'.
+    - Calling *build_part* looks like this:
+    - *part1* = *build_part(528, "Disk drive", 10);
+- "Passing a structure to a function and returning a structure from a function both require making a copy of all members in the structure." This is cumbersome, so to avoid this we can ***pass*** a *pointer* to a structure instead of passing a structure itself. Similarly, you can have a function ***return*** a pointer to a structure. 
+    - Another reason to avoid copying structures is that the *<stdio.h>* library defines a type named *FILE*, which is a structure. "Each *FILE* structure stores information about the state of an open file and therefore must be unique in a program. Every function in *<stdio.h>* that opens a file returns a pointer to a *FILE* structure, and every function that performs an operation on an open file requires a *FILE* pointer as an argument.
+- You can also initialize a structure vairable inside a function to match another structure, it could be suppliede as a function parameter. For example:
+
+*void f*(*struct part part1*){
+    *struct partpart2* = *part1*;
+}
+
+- C allows this as an initializer as long as the structure has automatic storage duration (meaning 'it's local to a function and hasn't been declared *static*'). 'The initializer can be any expression of the proper type, including a function call that returns a structure'.
+
+#### Compound Literals (Page 386)
+- ***Compound literal***: 'an unnamed array that's created "on the fly" by simply specifying which elements it contains'. 
+    - Compound literals can also create structures like this. For example:
+    - *print_part*(**(struct part) { 528, "Disk drive", 10}**);
+    - The **bolded** part creates a *part* structure containing the expressed members. 
+    - Compound literals can also be assigned to variables, for example:
+    - *part1* = (*struct part*) {528, "Disk drive", 10};
+    - This is not an initializer, because this appears in a statement instead of a declaration.
+- Compound literals consist 'of a type name within parentheses, followed by a set of values enclosed by braces'.
+- Compound literals may also contain designated initializers, for example:
+- *print_part*((*struct part*) {.on_hand = 10, .name = "Disk drive", .number = 528});
+- Compound literals can fail to fully be initialized, in this case, all uninitialized members default to 0.
+
+## 16.3 Nested arrays and Structures (Page 386)
+- Besides nesting arrays within structures you can also do the reverse. You can also nest structures within themselves, and even do both.
+
+#### Nested Structures (Page 387)
+- Nested Structure example, a person's name:
+
+*struct person_name* {
+*char first*[*FIRST_NAME_LEN*+1];
+*char middle_initial*;
+*char last*[*LAST_NAME_LEN*+1];
+};
+
+- And then use the person name structure as part of a student structure, like so:
+
+*struct student* {
+    *struct person_name name*;
+    *int id, age*;
+    *char sex*;
+} *student1, student2*;
+
+- "Accessing *student*'s first name, middle initial, or last name requires two applications of the '.' operator":
+- *strcpy*(*student1.name.first*, "Fred");
+- It's nice to have name as a structure because it is easier to treat as a unit of data. You could even pass it as just an argument instead of three:
+- *display_name*(*student1.name*);
+- Copying information from a *person_name* structure to the *name* member of a *student* sttructure would take oone assignment instead of three, For example:
+    - *struct person_name new_name*;
+    - *student1.name* = *new_name*;
+
+#### Arrays of Structures (Page 387)
+- the most common conbination of array and structure is an array of structures. it can serve as a simple database. For example:
+    - *struct part inventory*[100];
+- To access parts in the array use subscripting. For example:
+        - *print_part*(*inventory[i]*);
+    - "Accessing a member within a *part* structure requires a combination of subscripting and member selection". For example:
+        - *inventory[i].number* = *883*;
+    - Accessing a single character requires a few more layers (subscripting, selection, then subcripting again). For example, changing the name stored in *inventory[i]* to an empty string:
+        - *inventory[i].name[0]* = '\0';
+
+#### Initializing an Array of Structures (Page 388)
+- Initializing an array of structures can be done to have a database of information that won't change during program execution. For example, a program that needs to access country codes when making telephone calls:
+
+*struct dialing_code* {
+char *country;
+int code;
+};
+
+- Note that *country* is a pointer, not an array of characters. "That could be a problem if we were planning to use *dialing_code* structures as variables, but we're not. When we initialize a *dialog_code* structure, *country* will end up pointing to a string literal".
+    - Example of declaring an array of these structures and initializing it to contain the codes for some of the world's most populous nations:
+
+*const struct dialing_code country_codes[]* =
+{{"Argentina", 54}, {"Bangladesh", 880}, {"Brazil", 55}, {"Burma (Myanmar)", 95}, {"China", 86},{"Colombia", 57}, {"Congo, Dem. Rep. of", 243}, {"Egypt", 20}, {"Ethiopia", 251}, {"France", 33}, {"Germany", 49}, {"India", 91}, {"Indonesia", 62}, {"Iran", 98}, {"Italy", 39}, {"Japan", 81}, {"Mexico", 52}, {"Pakistan", 92}, {"Philippines", 63}, {"Poland", 48}, {"Russia", 7}, {"South Africa", 27}, {"South Korea", 82}, {"Spain", 34}, {"Sudan", 249}, {"Thailand", 66}, {"Turkey", 90}, {"Ukraine", 380}, {"United Kingdom", 44}, {"United States", 1}, {"Vietnam", 84}};
+
+- The inner braces around each structure value is optional, but it's visually easier to read.
+- C99 allows an item to have more than one designator because arrays of structures (and vice versa) are so common. For example:
+
+*struct part inventory[100]* = {[0],number = 528, [0].on_hand = 10, [0].name[0] = '\0'};
+
+- The 1st 2 items in the list use two designators ('one to select array element 0- a *part* structure- and one to select a member within the structure'). The last item uses 3 designators: one selects the array element, one selects the *name* member within that element, and one selects the element 0 of *name*.
+
+#### Maintaining a Parts Database (Page 389)
+- Developing the previous warehouse example, it supports the following operations:
+    - ***Add a new part number, part name, and initial quantity on hand.*** Program needs to print an error message if the part is already in the database or if the database is full.
+    - ***Given a prat number, print the name of the part and the current quantity on hand.*** Program needs to print an error message if part number isn't in database.
+    - ***Given a part number, change the quantity on hand.*** Program needs to print an error message if the part number isn't in the database.
+    - ***Print a table showing all information in the database.*** Parts are displayed in entry order.
+    - ***Terminate program execution***
+- "We'll use the codes *i* (insert), *s* (search), *u* (update), *p* (print), and *q* (quit) to represent these operations. Asession with the program might look like this":
+
+*Enter operation code*: i
+*Enter part number*: 528
+*Enter part name*: Disk drive
+*Enter quantity on hand*: 10
+
+*Enter operation code*: s
+*Enter part number*: 528
+*Part name*: Disk drive
+*Quantity on hand*: 10
+
+*Enter operation code*: s
+*Enter part number*: 914
+*Part not found.*
+
+*Enter operation code*: i
+*Enter part number*: 914
+*Enter part name*: Printer cable
+*Enter quantity on hand*: 5
+
+*Enter operation code*: u
+*Enter part number*: 528
+*Enter change in quantity on hand*: -2
+
+*Enter operation code*: s
+*Enter part number*: 528
+*Part name*: Disk drive
+*Quantity on hand*: 8
+
+*Enter operation code*: p
+| Part Number |   Part Name   | Quantity on Hand |
+|-------------|---------------|------------------|
+|    528      |   Disk drive  |       8          |
+|    914      | Printer cable |       5          |
+*Enter operation code*: q
+
+- "The program will store information about ecah part in a structure. We'll limit the size of the databbase to 100 parts, making it possible to store the structures in an array, which I'll call *inventory*.(If this limit proves to be too small, we can always change it later.) To keep track of the number of parts currently stored in the array, we'll use a variable named *num_parts*. Since this program is menu-driven, it's fairly easy to sketch the main loop:"
+
+*for* (;;) {
+    *prompt user to enter operation code*;
+    *read code*;
+    *switch* (*code*) {
+        case 'i': *perform insert operation*; break;
+        case 's': *perform search operation*; break;
+        case 'u': *preform udpate operation*; break;
+        case 'p': *perform print operation*; break;
+        case 'q': *terminate program*;
+        default: *print error message*;
+    }
+}
+
+- "From a design standpoint, it's usually better to make variables local to a function rather than making them external". In this case it isn't because it would actually complicate it more. 
+- We will split the program into 3 files:
+    1. inventory.c
+        a. contains bulk of the program .
+    2. readline.h
+        a.contains the prototype for the read_line function.
+    3. readline.c
+        a. contains the definition of read_line.
+- Program - inventory.c:
+
+/* Maintains a parts database (array version) */
+#include <stdio.h>
+#include "readline.h"
+
+#define NAME_LEN 25
+#define MAX_PARTS 100
+
+*struct* part {
+int number;
+char name[NAME_LEN+1];
+int on_hand;
+} inventory[MAX_PARTS];
+
+int num_parts = 0; /* number of parts currently stored */
+int find_part(int number);
+void insert(void);
+void search(void);
+void update(void);
+void print(void);
+
+/* 
+main: Prompts the user to enter an operation code, then calls a function to perform the requested action. Pepeats until the user enters the command 'q'. Prints an error message if the user enters an illegal code.
+*/
+int main(void)
+{
+    char code;
+    
+    for(;;){
+        printf("Enter operation code:  ");
+        scanf(" %c", &code);
+        while (getchar() != '\n')  /\* skips to end of line */
+        ;
+        switch(code){
+            case 'i': insert();
+                        break;
+            case 's': search();
+                        break;
+            case 'u': update();
+                        break;
+            case 'q': return 0;
+            default: printf("Illegal code\n");
+        }
+        printf("\n");
+    }
+}
+/\* find_part: Looks up a part number in the inventory array. Returns the array index if the part number is found; otherwise, returns -1. */
+int find_part(int number)
+{
+    int i;
+    
+    for(i = 0; i < num_parts; i++)
+            if(invenrtory[i].number == number)
+                    return i;
+    return -1;
+}
+/\* insert: Prompts the user for information about a new part and then inserts the part into the database. Prints an error message and returns prematurely if the part alreadyexists or the databaseis full. */
+void insert(void)
+{
+    int part_number;
+    
+    if(num_parts == MAX_PARTS) {
+            printf("Database is full; can't add more parts. \n");
+            return;
+    }
+    
+    printf("Enter part number: ");
+    scanf("%d", &part_number);
+    
+    if(find_part(part_number) >= 0) {
+            printf("Part already exists.\n");
+            return;
+    }
+    
+    inventory [num_parts].number = part_number;
+    printf("Enter part name: ");
+    read_line(inventory[num_parts].name, NAME_LEN);
+    printf("Enter quantity on hand:");
+    scanf("%d", &inventory[num_parts].on_hand);
+    num_parts++;
+}
+/\* search: Prompts the user to enter a part number, then looks up the part in the database. If the part exists, prints the name and quantity on hand; if not, prints an error message. */
+void search(void)
+{
+    int i, number;
+    
+    printf("Enter part number: ");
+    scanf("%d", &number);
+    i = find_part(number);
+    if(i >= 0){
+        printf("Part name: %s\n", inventory[i].name);
+        printf("Quantity on hand: %d\n", inventory[i].on_hand);
+    }else
+        printf("Part not found.\n");
+}
+/* updates: Prompts the user to enter a part number. Prints an error message if the part doesn't exist; otherwise, prompts the user to enter change in quantity on hand and updates the database. */
+void update(void)
+{
+    int i, number, change;
+    
+    printf("Enter part number: ");
+    scanf("%d", &number);
+    i = find_part(number);
+    if(i >= 0) {
+        printf("Enter change in quantity on hand: ");
+        scanf("%d", &change);
+        inventory[i].on_hand += change;
+    } else
+        printf("Part not found.\n");
+}
+
+/* print: Prints a listing of all parts in the database, showing the part number, part name, and quantity on hand. Parts are printed in the order in which they were entered into the database. */
+void print(void)
+{
+    int i;
+    
+    printf("Part Number PartName    "
+            "Quantity on Hand\n");
+    for(i = 0; i < num_parts; i++)
+        printf("%7d %-25s%11d\n", inventory[i].number,
+                inventory[i].name, inventory[i].on_hand);
+}
+
+- "In the *main* function, the format string ' %c' allows *scanf* to skip over white space before reading the operation code". Without the space in the format string *scanf* would at times read new-line characters that terminated in previous input lines.
+- *find_part*  is a "helper" function that allows avoiding redundant code and simplifies more important functions. Calling *find_part*, the *insert*, *search*, and *update* functions can locate a part in the database (or determine if it exists).
+- The *read_line* function, used to read the part name.
+    - *Consider what happens when the user inserts a part*:
+    - *Enter part number*: 528
+    - *Enter part name*: Disk drive
+- Pressing the enter key leaves a new-line character that the program must read.
+    - When *scanf* is called to read the part number, it reads 5,2, and 8 but leaves the enter character unread.If we try to read teh part name using the original *read_line* function, it'll read the enter character immediately and then stop reading. 
+    - This is common when int input is followed by char input.
+        - The solution is to write *read_line* so it skips white-space characters before it begins storing characters.
+        - Program - readline.h:
+
+#ifndef READLINE_H
+#define READLINE_H
+/* read_line: Skips leading white-space characters, then reads the remainder of the input line and stores it in str. Truncates the line if its length exceeds n. Returns the number of characters stored. */
+int read_line(char str[], int n);
+#endif
+
+- read_line.h goes in readline.c
+- Program - readline.c:
+
+#include <ctype.h>
+#include <stdio.h>
+#include "readline.h"
+
+int read_line(char str[], int n)
+{
+    int ch, i = 0;
+    
+    while(isspace(ch = getchar()))
+        ;
+    while(ch != '\n' && ch != EOF) {
+        if(i < n)
+            str[i++] = ch;
+        ch = getchar();
+    }
+    str[i] = '\0';
+    return i;
+}
+
+- *isspace(ch = getchar())* controls the first *while* statement."The expression calls *getchar* to read a character, stores the character into *ch*, and then uses the *isspace* function to test whether *ch* is a white-space character. If not, the loop terminates with *ch* containing a character that's not white space".
+
+## 16.4 Unions (Page 396)
+- ***Union***: "like a structure, consists of one or more members, possibly of different types. However, the compiler allocates only enough space for the largest of the members, which overlay each other within this space. As a result, assigning a new value to one member alters the values of the other members as well".
+- Union declaration example:
+
+*union* {
+    int i;
+    double d;
+    u;
+}
+
+- Structure and Union differ in one way: the members of a structure are stored at *different* addresses in memory, while the members of a union are stored at the *same* address.
+    - if a structure takes up an int and double space the total size of it is 12 bytes, whereas a union would only be 8 bytes, because the int and double overlap, so int would only take up the first 4 of the 8 bytes.
+- Members of a union are accessed in the same way as members of a structure:
+    - *u.i = 82;*
+- changing any one property of a union corrupts all other members properties. So a union can only have one value at a time. This is because of the address overlap feature.
+- Structures and unions are nearly identical, you can declare union tags and types, as well as copy structures using the = operator, as well as pass and return unions from functions.
+    - The difference is in initializing, where only the first member of a union can be given an initial value.
+        - For example, we can initialize the *i* member of *u* to 0 in the following way:
+
+*union* {
+    int i;
+    double d;
+} u = {0};
+
+- Note: braces are required. The expression inside the braces must be constant.
+- "Designated initializers, a C99 feature", "can also be used with unions".
+    - For example, we can initialize the *d* member of *u* as follows:
+ 
+*union* {
+    int i;
+    double d;
+} u = {.d = 10.0};
+
+- Only one member can be initialized, but it doesn't have to be the first one.
+
+#### Using Unions to Save Space (Page 398)
+- Suppose a gift catalog carries 3 kinds of mechandise: books, mugs, and shirts.Each item has a stock number and price, as well as other information that dependsn on the type of the item:
+    - *Books*: Title, author, number of pages
+    - *Mugs*: Design
+    - *Shirts*: Design, colors available, sizes available
+- A structure with these traits might look like this:
+
+*struct catalog_item* {
+    int stock_number;
+    double price;
+    int item_type;
+    char title[TITLE_LEN+1];
+    char author[AUTHOR_LEN+1];
+    int num_pages;
+    char design[DESIGN_LEN+1];
+    int colors;
+    int sizes
+};
+
+- *item_type* member would have one of the values BOOK, MUG, or SHIRT.The *colors* and *sizes* members would store encoded combinations of colors and sizes.
+    - The structure is usable, but wastes space since only part of the information in the structure is common to all items in the catalog.
+    - The following will replace wasted space with unions whose members will be structures that each contain the data needed for a particular kind of catalog item:
+
+*struct catalog_item* {
+    int stock_number;
+    double price;
+    int item_type;
+    union {
+        struct {
+            char title[TITLE_LEN+1];
+            char author[AUTHOR_LEN+1];
+            int num_pages;
+        } book;
+        struct {
+            char design[DESIGN_LEN+1];
+        } mug;
+        struct {
+            char design[DESIGN_LEN+1];
+            int colors;
+            int sizes;
+        } shirt;
+    } item;
+};
+
+- For example, if *c* is a *catalog_item* structure that represents a book, we can print the book's title like so:
+    - *printf*("%s", c.item.book.title);
+- "Consider the union embedded in the *catalog_item* structure. It contains three structures as members, 2 of which (*mug* and *shirt*) begin with a matching member (*design). Now, suppose that we assign a value to one of the design members:"
+    - *strcpy*(c.item.mug.design, "Cats");
+    - The *design* member in the other structure will be defined and have the same value:
+    - *printf*("%s", c.item.shirt.design); /* prints "Cats" */
+
+#### Using Unions to Build Mixed Data Structures (Page 399)
+-  "Unions have another important application: creating data structures that contain a mixture of data of different types".
+    - For example, if you wanted to create an array that holds double and int it would look like so:
+
+*typedef union* {
+    int i;
+    double d;
+} Number;
+
+Number number_array[1000];
+
+- The elements of the array can now hold either int or double thanks to the *Number* union.
+
+#### Adding a "Tag Field" to a Union (Page 400)
+- There isn't an easy way to tell which member of a union was last changed and contains a meaningful value. "Consider the problem of writing a function that displays the value currently stored in a Number union:"
+
+void *print_number*(Number n)
+{
+    if (n *contains an integer*)
+        printf("%d", n.i);
+    else
+        printf("%g", n.d);
+}
+
+- Unfortunately, you can't check to see if n contains an integer or floating-point number.
+- If you want to keep track of the information, you can put the union within a structure that has a "tag field" or "discriminant".
+    - To continue the last example:
+
+#define INT_KIND 0
+#define DOUBLE_KIND 1
+
+typedef struct {
+    int kind;
+    union {
+        int i;
+        double d;
+    } u;
+} Number;
+
+- Notice that now you have to declare whether it is *INT_KIND* or *DOUBLE_KIND* moving forward. *print_number* would now look like this:
+
+void *print_number*(Number n)
+{
+    if (n.kind == *INT_KIND*)
+        printf("%d", n.u.i);
+    else
+        printf("%g", n.u.d);
+}
+
+## 16.5 Enumerations (Page 401)
+- ***Enumerated type***: a type whose values are listed by the programmer, who must create a name for each of the values. The name is called an ***enumeration consant***.
+    - Lets use card suits as an example, lets say *CLUBS* = 0, *DIAMONDS* = 1, *HEARTS* = 2, *SPADES* = 3. Lets assign them to the variables s1 and s2:
+    - enum {CLUBS, DIAMONDS, HEARTS, SPADES} s1, s2;
+- Enumeration constants are different from #define because the are subject to C's scope rules:
+    - if an enumeration is declared inside a function, its constants won't be visible outside the function.
+
+#### Enumeration Tags and Type Names (Page 402)
+-  Enumeratiyon tags resemble structure and union tags. To define the tag *suit*, for example, we could write:
+    - *enum suit* { CLUBS, DIAMONDS, HEARTS, SPADES};
+    - *suit* variables would then be declared:
+        - *enum suit s1, s2*;
+    - Alternatively, you could use *typedef*:
+
+*typedef enum* {CLUBS, DIAMONDS, HEARTS, SPADES} Suit;
+Suit s1, s2;
+
+- In C89 *typedef* is great for creating a boolean type:
+
+*typedef enum* {FALSE, TRUE} Bool;
+
+- C99 already has *Bool* so it doesn't need to be defined.
+
+#### Enumerations as Integers (Page 403)
+- When no value is specified for an enugmeration constant it's value is one greater than the value of the previous constant. By default the first enumeration constant is 0. 
+    - For example:
+
+*enum EGA_colors* {BLACK, LT_GRAY = 7, DK_GRAY, WHITE = 15};
+
+- here BLACK = 0 because it is the first value with no assignment. DK_GRAY = 8 because the assignment is +1 the value of the previous constant.
+- Since enum values are integers, C allows us to mix them with integers.
+    - For example:
+
+int i;
+enum { clubs, DIAMONDS, HEARTS, SPADES} s;
+i = DIAMONDS; // 'i' is now 1
+s = 0; // 's' is now 0 {CLUBS)
+s++; // 's' is now 1 (DIAMONDS)
+i = s + 2; // 'i' is now 3
+
+- Note: Using enumeration values as int is convenient, but be careful storing ints as enum values, you don't want to store something that doesn't correspond to a enum constant.
+
+#### Using Enumerations to Declare "Tag Fields" (Page 404)
+- Enumerations are perfect for solving the issue of determining which member of a union was last to be assigned a value. Lets use the *Number* structure again:
+
+*typedef struct* {
+    enum {INT_KIND, DOUBLE_KIND} *kind*;
+    union {
+        int i;
+        double d;
+    } u;
+} Number;
+
+- Note: the new structure is used in the same way as the old one. However, this is better because you don't have to use #define thanks to *INT_KIND* and *DOUBLE_KIND* already being enumeration constants. It's also better because it shows that *kind* can only have 2 values. It not only saves lines but it's more clear!

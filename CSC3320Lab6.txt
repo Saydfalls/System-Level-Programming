@@ -1,0 +1,22 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(){
+
+	int i, arrNums[50], arrEvenOdd[] = {0,0};
+	
+	// loop adds random integers to array and then checks if they are even or odd
+	for(i = 0; i < 50; i++){
+		arr1[i] = random%100+1;
+
+		if(arr1[i] % 2 == 1){ // if checks odd using the modulus function to find the remainder
+			arrEvenOdd[1]++; // adds one to the odd counter
+		}else{
+		arrEvenOdd[0]++; // otherwise it is even
+	}
+
+	printf("Total Evens: %d", arrEvenOdd[0]);
+	printf("Total Odds: %d", arrEvenOdd[1]);
+
+	return 0;
+}

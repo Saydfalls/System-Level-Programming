@@ -1,0 +1,314 @@
+Adrian Rodriguez-Cruz
+CSC3320
+Due Date: 10/16/22
+
+
+# C book, Chapter 16 - Structures, Unions, and Enumerations
+- 'Three new types: Structures, Unions, and Enumerations.'
+    - **Structure**: 'a collection of values (members), possibly of different types.'
+    - **Union**: 'similar to a structure, but members share the same storage, as a result a union can store one member at a time, but not all members simultaneously.'
+    - **Enumeration**: 'an integer type whose values are named by the programmer.'
+
+## 16.1 Structure 
+- "Elements of a structure, called members, are selected by specifying its name, rather than it's position."
+
+#### Declaring Structure Variables
+- Warehouse example:
+
+*struct* {
+int number;
+char name [*Name_LEN*+1];
+int on_hand;
+} part1, part2;
+
+- "Each structure variable has 3 members":
+    - "*number* (part number)"
+    - "*name* (name of the part)"
+    - "*on_hand* (quantity on hand)"
+- *part1* and *part2* are both variables of that structure.
+- What does it look like in memory?
+    - let's assume 4 things:
+        1. "*part1* is located at address 2000"
+        2. "integers occupy four bytes"
+        3."*NAME_LEN* has the value 25"
+        4. "There are no gaps between the members."
+    - With this established part1's address spans from 2000-2033.
+    - 'Each structure represents a new scope', this means that each declaration of a structure does not interfere with any other declaration of a structure, this includes variable's within each structure.
+
+#### Initializing Structure Variables
+- 'Like an array, a structure variable may be initialized at the time it's declared'. For example:
+
+*struct* {
+int number;
+char name[*NAME_LEN*+1];
+int on_hand;
+} part1 = {528, "Disk drive", 10},
+part2 = {914, "Printer cable", 5};
+
+- Ensure that values are initialized in the order in which they are declared.
+- They should also be constant values, you ***cannot***  use variables.
+    - It should be noted that this rule is relaxed in C99.
+- 'An initializer can have fewer members than the structure it's initializing; as with arrays, any "leftover" members are given 0 as their initial value.' bytes in a leftover char array will also be 0.
+
+#### Designated Initializers
+- **Designator**: is a combination of a period and the name of a member. In the previous example:
+*{528, "Disk drive", 10}*
+- With designators would look like:
+*{.number = 528, .name = "Disk drive", .on_hand = 10}*
+- The advantages of designated initializing include:
+    1. 'easier to read and check for correctness'
+    2. 'values in the initializer don't have to be placed in the same order that the members are listed in the structure.'
+        - For example it could be written as:
+*{.on_hand = 10, .name = "Disk drive", .number =528}*
+
+#### Operations on Structures
+- How to access a member (example):
+    - '*printf*("Part number: %d\n", part1.number);'
+- 'The members of a structure are lvalues, so they can appear on the left side of an assignment or as the operand in an increment or decrement expression', another example follows:
+- *part1.number = 258;*
+- The period is a C operator. 'It has the same precedence as the postfix ++ and -- operators, so it takes precedence over nearly all other operaters.'
+    - For example:
+    - *scanf*("%d", &part1.on_hand);
+    - '.'takes precedence over & so it computes the address of part1.on_hand.
+- 'The other major structure operation is assignment:'
+    - *part2 = part1;*
+- all values of all members from part1 will be assigned to all members of part2.
+- although arrays can't be copied with the = operator, they can with structures.
+    - this can be exploited like so:
+*struct* { int a [10]; } a1, a2;
+*a1 = a2;*
+    - this is only legal because a1 and a2 are structures.
+- The = operator can be used only with structures of ***compatible*** types. Which means they must have been declared at the same time. 'Structures declared using the same "structure tag" or the same type name are also compatible.'
+- 'Other than assignment, C provides no operations on entire structures.'
+    - This means you can't use boolean operators to test whether two structures are equal or not (== !=).
+
+## 16.2 Structure Types
+- In order to avoid issues it is best to define a name that will represent the type of a structure. There are 2 ways to define the name of a structure:
+    1. "structure tag": a name used to identify a particular kind af structure.
+    2. typedef: define's a type name.
+
+#### Declaring a Structure Tag
+- ***Structure tag*** example:
+
+*struct* part {
+int number;
+char name["*NAME_LEN* + 1"];
+int on_hand;
+};
+- 'Notice the semicolon that follows the right brace - it must be present to terminate the declaration.'
+- Once the structure tag is defined it can be used to declare variables, however you cannot drop 'struct' because it defines the type.
+    - For example:
+
+*struct part part1, part2;*
+    - the following would be incorrect:
+
+*part part1, part2;*
+- You can also write out your struct with the structure tag included and later initiate the variables, like the following:
+
+*struct part part1* = {528, "Disk drive", 10};
+
+#### Defining a Structure Type
+- We can also use typedef:
+
+*typedef struct* {
+int number;
+char name[*NAME_LEN*+1];
+int on_hand;
+}Part;
+- 'Note that the name of the type, *Part*, must come at the end, not after the word *struct*.'
+    - The difference here is that, unlike structure tags, typedef can be used 'in the same way as the built-in type. For example':
+*Part part1, part2;*
+- Because *Part* is defined by *typedef* you can't write *struct Part*.
+- When it comes to linked list it is mandatory to use a structure tag instead of *typedef*.
+
+#### Structures as Arguments and Return Values
+- Functions can have structures as arguments and return values.
+
+void *print_part*(*struct part* p)
+{
+*printf*("Part number: %d\nPart name: %s\nQuantity on hand: %d\n", p.number, p.name, p.on_hand);
+}
+- print_part is called as:
+
+*print_part*(*part*);
+- struct as a function with return values looks like this:
+
+*struct part build_part*(int number, const char *name, int on_hand)
+{
+struct part p;
+
+p.number = number;
+strcpy(p.name, name);
+p.on\_hand = on_hand;
+return p;
+}
+
+- Note: *build_part*'s parameters has names that match the members of the part structure. This is legal because 'the structure has its own name space'.
+    - Calling *build_part* looks like this:
+    - *part1* = *build_part(528, "Disk drive", 10);
+- "Passing a structure to a function and returning a structure from a function both require making a copy of all members in the structure." This is cumbersome, so to avoid this we can ***pass*** a *pointer* to a structure instead of passing a structure itself. Similarly, you can have a function ***return*** a pointer to a structure. 
+    - Another reason to avoid copying structures is that the *<stdio.h>* library defines a type named *FILE*, which is a structure. "Each *FILE* structure stores information about the state of an open file and therefore must be unique in a program. Every function in *<stdio.h>* that opens a file returns a pointer to a *FILE* structure, and every function that performs an operation on an open file requires a *FILE* pointer as an argument.
+- You can also initialize a structure vairable inside a function to match another structure, it could be suppliede as a function parameter. For example:
+
+*void f*(*struct part part1*){
+    *struct partpart2* = *part1*;
+}
+
+- C allows this as an initializer as long as the structure has automatic storage duration (meaning 'it's local to a function and hasn't been declared *static*'). 'The initializer can be any expression of the proper type, including a function call that returns a structure'.
+
+#### Compound Literals
+- ***Compound literal***: 'an unnamed array that's created "on the fly" by simply specifying which elements it contains'. 
+    - Compound literals can also create structures like this. For example:
+    - *print_part*(**(struct part) { 528, "Disk drive", 10}**);
+    - The **bolded** part creates a *part* structure containing the expressed members. 
+    - Compound literals can also be assigned to variables, for example:
+    - *part1* = (*struct part*) {528, "Disk drive", 10};
+    - This is not an initializer, because this appears in a statement instead of a declaration.
+- Compound literals consist 'of a type name within parentheses, followed by a set of values enclosed by braces'.
+- Compound literals may also contain designated initializers, for example:
+- *print_part*((*struct part*) {.on_hand = 10, .name = "Disk drive", .number = 528});
+- Compound literals can fail to fully be initialized, in this case, all uninitialized members default to 0.
+
+## 16.3 Nested arrays and Structures
+- Besides nesting arrays within structures you can also do the reverse. You can also nest structures within themselves, and even do both.
+
+#### Nested Structures
+- Nested Structure example, a person's name:
+
+*struct person_name* {
+*char first*[*FIRST_NAME_LEN*+1];
+*char middle_initial*;
+*char last*[*LAST_NAME_LEN*+1];
+};
+
+- And then use the person name structure as part of a student structure, like so:
+
+*struct student* {
+    *struct person_name name*;
+    *int id, age*;
+    *char sex*;
+} *student1, student2*;
+
+- "Accessing *student*'s first name, middle initial, or last name requires two applications of the '.' operator":
+- *strcpy*(*student1.name.first*, "Fred");
+- It's nice to have name as a structure because it is easier to treat as a unit of data. You could even pass it as just an argument instead of three:
+- *display_name*(*student1.name*);
+- Copying information from a *person_name* structure to the *name* member of a *student* sttructure would take oone assignment instead of three, For example:
+    - *struct person_name new_name*;
+    - *student1.name* = *new_name*;
+
+#### Arrays of Structures
+- the most common conbination of array and structure is an array of structures. it can serve as a simple database. For example:
+    - *struct part inventory*[100];
+- To access parts in the array use subscripting. For example:
+        - *print_part*(*inventory[i]*);
+    - "Accessing a member within a *part* structure requires a combination of subscripting and member selection". For example:
+        - *inventory[i].number* = *883*;
+    - Accessing a single character requires a few more layers (subscripting, selection, then subcripting again). For example, changing the name stored in *inventory[i]* to an empty string:
+        - *inventory[i].name[0]* = '\0';
+
+#### Initializing an Array of Structures
+- Initializing an array of structures can be done to have a database of information that won't change during program execution. For example, a program that needs to access country codes when making telephone calls:
+
+*struct dialing_code* {
+char *country;
+int code;
+};
+
+- Note that *country* is a pointer, not an array of characters. "That could be a problem if we were planning to use *dialing_code* structures as variables, but we're not. When we initialize a *dialog_code* structure, *country* will end up pointing to a string literal".
+    - Example of declaring an array of these structures and initializing it to contain the codes for some of the world's most populous nations:
+
+*const struct dialing_code country_codes[]* =
+{{"Argentina", 54}, {"Bangladesh", 880}, {"Brazil", 55}, {"Burma (Myanmar)", 95}, {"China", 86},{"Colombia", 57}, {"Congo, Dem. Rep. of", 243}, {"Egypt", 20}, {"Ethiopia", 251}, {"France", 33}, {"Germany", 49}, {"India", 91}, {"Indonesia", 62}, {"Iran", 98}, {"Italy", 39}, {"Japan", 81}, {"Mexico", 52}, {"Pakistan", 92}, {"Philippines", 63}, {"Poland", 48}, {"Russia", 7}, {"South Africa", 27}, {"South Korea", 82}, {"Spain", 34}, {"Sudan", 249}, {"Thailand", 66}, {"Turkey", 90}, {"Ukraine", 380}, {"United Kingdom", 44}, {"United States", 1}, {"Vietnam", 84}};
+
+- The inner braces around each structure value is optional, but it's visually easier to read.
+- C99 allows an item to have more than one designator because arrays of structures (and vice versa) are so common. For example:
+
+*struct part inventory[100]* = {[0],number = 528, [0].on_hand = 10, [0].name[0] = '\0'};
+
+- The 1st 2 items in the list use two designators ('one to select array element 0- a *part* structure- and one to select a member within the structure'). The last item uses 3 designators: one selects the array element, one selects the *name* member within that element, and one selects the element 0 of *name*.
+
+#### Maintaining a Parts Database
+- Developing the previous warehouse example, it supports the following operations:
+    - ***Add a new part number, part name, and initial quantity on hand.*** Program needs to print an error message if the part is already in the database or if the database is full.
+    - ***Given a prat number, print the name of the part and the current quantity on hand.*** Program needs to print an error message if part number isn't in database.
+    - ***Given a part number, change the quantity on hand.*** Program needs to print an error message if the part number isn't in the database.
+    - ***Print a table showing all information in the database.*** Parts are displayed in entry order.
+    - ***Terminate program execution***
+- "We'll use the codes *i* (insert), *s* (search), *u* (update), *p* (print), and *q* (quit) to represent these operations. Asession with the program might look like this":
+
+*Enter operation code*: i
+*Enter part number*: 528
+*Enter part name*: Disk drive
+*Enter quantity on hand*: 10
+
+*Enter operation code*: s
+*Enter part number*: 528
+*Part name*: Disk drive
+*Quantity on hand*: 10
+
+*Enter operation code*: s
+*Enter part number*: 914
+*Part not found.*
+
+*Enter operation code*: i
+*Enter part number*: 914
+*Enter part name*: Printer cable
+*Enter quantity on hand*: 5
+
+*Enter operation code*: u
+*Enter part number*: 528
+*Enter change in quantity on hand*: -2
+
+*Enter operation code*: s
+*Enter part number*: 528
+*Part name*: Disk drive
+*Quantity on hand*: 8
+
+*Enter operation code*: p
+| Part Number |   Part Name   | Quantity on Hand |
+|-------------|---------------|------------------|
+|    528      |   Disk drive  |       8          |
+|    914      | Printer cable |       5          |
+*Enter operation code*: q
+
+- "The program will store information about ecah part in a structure. We'll limit the size of the databbase to 100 parts, making it possible to store the structures in an array, which I'll call *inventory*.(If this limit proves to be too small, we can always change it later.) To keep track of the number of parts currently stored in the array, we'll use a variable named *num_parts*. Since this program is menu-driven, it's fairly easy to sketch the main loop:"
+
+*for* (;;) {
+    *prompt user to enter operation code*;
+    *read code*;
+    *switch* (*code*) {
+        case 'i': *perform insert operation*; break;
+        case 's': *perform search operation*; break;
+        case 'u': *preform udpate operation*; break;
+        case 'p': *perform print operation*; break;
+        case 'q': *terminate program*;
+        default: *print error message*;
+    }
+}
+
+- "From a design standpoint, it's usually better to make variables local to a function rather than making them external". In this case it isn't because it would actually complicate it more. 
+
+## 16.4 Unions
+
+
+#### Using Unions to Save Space
+
+
+#### Using Unions to Build Mixed Data Structures
+
+
+#### Adding a "Tag Field" to a Union
+
+
+## 16.5 Enumerations
+
+
+#### Enumeration Tags and Type Names
+
+
+#### Enumerations as Integers
+
+
+#### Using Enumerations to Declare "Tag Fields"
+

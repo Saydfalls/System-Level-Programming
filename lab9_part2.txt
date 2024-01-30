@@ -1,0 +1,178 @@
+#include <stdio.h>
+#include <string.h>
+
+int main()
+{
+	char userInput[21],i;
+	
+	scanf("%s", &userInput);
+	char userInput[21] = '\0';
+
+	for(i = 0; i < 21; i++){
+		switch(userInput[i]){
+			case 'A':
+				userInput[i]= 'a';
+				break;
+			case 'a':
+				userInput[i]= 'A';
+				break;
+			case 'B':
+				userInput[i]= 'b';
+				break;
+			case 'b':
+				userInput[i]= 'B';
+				break;
+			case 'C':
+				userInput[i]= 'c';
+				break;
+			case 'c':
+				userInput[i]= 'C';
+				break;
+			case 'D':
+				userInput[i]= 'd';
+				break;
+			case 'd':
+				userInput[i]= 'D';
+				break;
+			case 'E':
+				userInput[i]= 'e';
+				break;
+			case 'e':
+				userInput[i]= 'E';
+				break;
+			case 'F':
+				userInput[i]= 'f';
+				break;
+			case 'f':
+				userInput[i]= 'F';
+				break;
+			case 'G':
+				userInput[i]= 'g';
+				break;
+			case 'g':
+				userInput[i]= 'G';
+				break;
+			case 'H':
+				userInput[i]= 'h';
+				break;
+			case 'h':
+				userInput[i]= 'H';
+				break;
+			case 'I':
+				userInput[i]= 'i';
+				break;
+			case 'i':
+				userInput[i]= 'I';
+				break;
+			case 'J':
+				userInput[i]= 'j';
+				break;
+			case 'j':
+				userInput[i]= 'J';
+				break;
+			case 'K':
+				userInput[i]= 'k';
+				break;
+			case 'k':
+				userInput[i]= 'K';
+				break;
+			case 'L':
+				userInput[i]= 'l';
+				break;
+			case 'l':
+				userInput[i]= 'L';
+				break;
+			case 'M':
+				userInput[i]= 'm';
+				break;
+			case 'm':
+				userInput[i]= 'M';
+				break;
+			case 'N':
+				userInput[i]= 'n';
+				break;
+			case 'n':
+				userInput[i]= 'N';
+				break;
+			case 'O':
+				userInput[i]= 'o';
+				break;
+			case 'o':
+				userInput[i]= 'O';
+				break;
+			case 'P':
+				userInput[i]= 'p';
+				break;
+			case 'p':
+				userInput[i]= 'P';
+				break;
+			case 'Q':
+				userInput[i]= 'q';
+				break;
+			case 'q':
+				userInput[i]= 'Q';
+				break;
+			case 'R':
+				userInput[i]= 'r';
+				break;
+			case 'r':
+				userInput[i]= 'R';
+				break;
+			case 'S':
+				userInput[i]= 's';
+				break;
+			case 's':
+				userInput[i]= 'S';
+				break;
+			case 'T':
+				userInput[i]= 't';
+				break;
+			case 't':
+				userInput[i]= 'T';
+				break;
+			case 'U':
+				userInput[i]= 'u';
+				break;
+			case 'u':
+				userInput[i]= 'U';
+				break;
+			case 'V':
+				userInput[i]= 'v';
+				break;
+			case 'v':
+				userInput[i]= 'V';
+				break;
+			case 'W':
+				userInput[i]= 'w';
+				break;
+			case 'w':
+				userInput[i]= 'W';
+				break;
+			case 'X':
+				userInput[i]= 'x';
+				break;
+			case 'x':
+				userInput[i]= 'X';
+				break;
+			case 'Y':
+				userInput[i]= 'y';
+				break;
+			case 'y':
+				userInput[i]= 'Y';
+				break;
+			case 'Z':
+				userInput[i]= 'z';
+				break;
+			case 'z':
+				userInput[i]= 'Z';
+				break;
+		}
+
+	}
+
+	for(i = 0; i < 21; i++){
+		printf(userInput[i]);
+	}
+
+	return 0;
+}

@@ -1,0 +1,202 @@
+/*
+	hmwk2_arodriguezcruz1.c
+
+	Adrian Rodriguez-Cruz
+	Account: arodriguezcruz1
+	CSC3320
+	Program #2
+	Due date: 10/16/22
+
+	Description: This is a guessing game played with the user.
+		The aim of the game is to guess the code of "the vault".
+		The game prompts the user telling them how many guesses
+		they get and that they should guess. After guessing,
+		if they are incorrect, the game tells the player whether
+		their guess is too high or too low. It also tells them 
+		how many digits they guessed correctly and whether or
+		not they are in the right place.
+	Input: The user input's their guesses.
+	Output: The program outputs user prompts, and guidelines as to 
+		what the user should guess.
+*/
+
+#include <stdio.h>
+#define TRIES 8
+#define DIGITS 3
+#define RANGE 9
+
+void HL(int code, int guess)
+{ // method to compare higher or lower
+	int dif = guess - code; // takes difference of guess and code
+
+	if(dif > 0) { // if the guess is higher than the code the dif will be positive
+		printf("Too high, ");
+	}else { // if it's negative it'll be too low
+		printf("Too low, ");
+	}
+}
+
+void CD(int CODEarr[], int guess)
+{ // method to Compare Digits
+	int GUESSarr[DIGITS], i, j, temp; // declaring variables
+	
+	for(i = DIGITS - 1; i >= 0; i--){ // places digits into array in order
+		GUESSarr[i] = guess % 10;
+		guess /= 10;
+	}
+	
+
+	/* initiates cases (correct in the right place, and correct in the wrong place) and digits within code*/
+	int cases[2] = {0}, digitsWSC[10] = {0}, digitsWGC[10] = {0}; 
+
+	/* sum's each time a digit in the code array & digit in the guess array is encountered */
+	for(i = 0; i < DIGITS; i++){
+		switch(digitsWSC[i]){
+			case 0:
+				digitsWSC[0]++;
+				break;
+			case 1:
+				digitsWSC[1]++;
+				break;
+			case 2:
+				digitsWSC[2]++;
+				break;
+			case 3:
+				digitsWSC[3]++;
+				break;
+			case 4:
+				digitsWSC[4]++;
+				break;
+			case 5:
+				digitsWSC[5]++;
+				break;
+			case 6:
+				digitsWSC[6]++;
+				break;
+			case 7:
+				digitsWSC[7]++;
+				break;
+			case 8:
+				digitsWSC[8]++;
+				break;
+			case 9:
+				digitsWSC[9]++;
+				break;
+		}
+		switch(digitsWGC[i]){
+			case 0:
+				digitsWGC[0]++;
+				break;
+			case 1:
+				digitsWGC[1]++;
+				break;
+			case 2:
+				digitsWGC[2]++;
+				break;
+			case 3:
+				digitsWGC[3]++;
+				break;
+			case 4:
+				digitsWGC[4]++;
+				break;
+			case 5:
+				digitsWGC[5]++;
+				break;
+			case 6:
+				digitsWGC[6]++;
+				break;
+			case 7:
+				digitsWGC[7]++;
+				break;
+			case 8:
+				digitsWGC[8]++;
+				break;
+			case 9:
+				digitsWGC[9]++;
+				break;
+		}
+	}
+
+	/* for loop that finds both cases (correct digits in right place and correct digits in wrong place) */
+	for(i = 0; i < 10; i++){
+		if(digitsWSC[i] > 0 && digitsWGC[i] > 0){ // if the digit exists within the secret code and the guess code enter for loop
+			if(CorrectRP(GUESSarr[],CODEarr[], i) > 0) // if function returns > 0  adds it to Correct Digit in right place case
+				case[0] += CorrectRP(GUESSarr[], CODEarr[], i);
+			else // otherwise it adds to correct digit in the wrong place case
+				case[1]++;
+		}
+	}
+
+	
+	if(cases[0] > 1 || cases[0] == 0)
+		printf("%d digits are correct and in the right place, ", cases[0]);
+	else
+		printf("%d digit is correct and in the right place, ", cases[0]);
+	if(cases[1] > 1 || cases[1] == 0)
+		printf("%d digits are correct and in the wrong place.\n", cases[1]);
+	else
+		printf("%d digit is correct and in the wrong place.\n", cases[1]);
+}
+
+int arr2code(int CODEarr[])
+{
+	int code = 0, i,count = 0;
+
+	for(i = DIGITS - 1; i >= 0; i--){
+		code += tenPow(count, CODEarr[i]);
+		count++;
+	}
+
+	return code;
+}
+
+int tenPow(int power, int value)
+{
+	int i,result = 1,ten = 10;
+
+	if(power == 0){
+		 return result * value;
+	}else {
+		for(i = power; i > 0;i--){
+			result *= 10;
+		}
+		return result * value;
+	}
+}
+
+int CorrectRP(int GUESSarr[], int CODEarr[],int comparedDigit){ // function returns how many digits are correct and in the right place
+	int i, correctRP = 0;
+	for(i = 0; i < DIGITS; i++){
+		if(comparedDigit == CODEarr[i] && GUESSarr[i] == CODEarr[i])
+			correctRP++;
+	}
+
+	return correctRP;
+}
+
+int main()
+{
+	int i, CODEarr[DIGITS], code, GUESSarr[DIGITS], guess;
+
+	for(i = 0; i < DIGITS; i++){
+		CODEarr[i] = random % (RANGE + 1); // inserts digits into the array
+	}
+
+	code = arr2code(CODEarr); // turns the array into int
+
+	for(i = 0; i < TRIES; i++){ // main attempt loop
+		// prompts user for guess and tells them attempts remaining
+		printf("%d tries remain. What is the code?\n", TRIES - i);
+		scanf("%d", guess);
+
+		if(guess == code) { // if user guesses correctly
+			printf("You opened the vault!");
+			break;
+		} else { // else do checks
+			HL(code, guess); // higher or lower method
+			CD(CODEarr, guess); // compares digits
+		}
+	}
+
+	return 0;
+}
